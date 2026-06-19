@@ -262,15 +262,27 @@ function randStr(len,chars){
   let r="";for(let i=0;i<len;i++)r+=chars[Math.floor(Math.random()*chars.length)];
   return r;
 }
+function randServer(){
+  const pool=[
+    "198.54.117.210","198.54.117.211","198.54.117.212","198.54.117.213",
+    "162.241.216.10","162.241.216.11","162.241.216.12","162.241.216.13",
+    "68.65.122.50","68.65.122.51","68.65.122.52","68.65.122.53",
+    "209.99.17.210","209.99.17.211","209.99.17.212","209.99.17.213",
+    "185.234.218.10","185.234.218.11","185.234.218.12","185.234.218.13"
+  ];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
 function genCpanel(name,email){
   const base=(name||email).replace(/[^a-z0-9]/gi,"").toLowerCase().substring(0,6);
+  const server=randServer();
   return{
     username: base+randStr(4,"0123456789"),
-    password: randStr(4,"ABCDEFGHJKLMNPQRSTUVWXYZ")+randStr(4,"abcdefghjkmnpqrstuvwxyz")+randStr(3,"0123456789")+"@",
+    password: "SENT_TO_EMAIL",
     ftpUser:  "ftp_"+base+randStr(3,"0123456789"),
-    ftpPass:  randStr(3,"ABCDEFGHJKLMN")+randStr(5,"abcdefghjkmnpq")+randStr(3,"0123456789")+"!",
+    ftpPass:  "SENT_TO_EMAIL",
     mysqlUser:base+"_db",
-    mysqlPass:randStr(12,"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP0123456789"),
+    mysqlPass:"SENT_TO_EMAIL",
+    server:   server,
     createdAt:new Date().toLocaleString()
   };
 }
@@ -434,33 +446,37 @@ function buildInvoiceHTML(o){
 
 function buildCpanelHTML(o){
   const s=getSettings();const cp=o.cpanel;
+  const serverIP=cp.server||s.server||"198.54.117.210";
+  const hidden=`<span style="color:var(--warning);font-size:.75rem;font-family:sans-serif">&#128274; Sent securely to client email</span>`;
   document.getElementById("cpanel-details-box").innerHTML=`
     <div class="cp-title">&#128187; cPanel Login</div>
     <div class="cp-row"><span class="cp-label">cPanel URL</span><span class="cp-val">${s.cpanelUrl||"https://cpanel.gearshosting.com"}</span></div>
     <div class="cp-row"><span class="cp-label">Username</span><span class="cp-val">${cp.username}</span></div>
-    <div class="cp-row"><span class="cp-label">Password</span><span class="cp-val">${cp.password}</span></div>
+    <div class="cp-row"><span class="cp-label">Password</span><span class="cp-val">${hidden}</span></div>
     <div class="cp-title" style="margin-top:.75rem">&#128196; FTP Access</div>
-    <div class="cp-row"><span class="cp-label">FTP Host</span><span class="cp-val">${s.server||"198.54.117.210"}</span></div>
+    <div class="cp-row"><span class="cp-label">FTP Host</span><span class="cp-val">${serverIP}</span></div>
     <div class="cp-row"><span class="cp-label">FTP User</span><span class="cp-val">${cp.ftpUser}</span></div>
-    <div class="cp-row"><span class="cp-label">FTP Pass</span><span class="cp-val">${cp.ftpPass}</span></div>
+    <div class="cp-row"><span class="cp-label">FTP Pass</span><span class="cp-val">${hidden}</span></div>
     <div class="cp-title" style="margin-top:.75rem">&#128202; MySQL Database</div>
     <div class="cp-row"><span class="cp-label">DB User</span><span class="cp-val">${cp.mysqlUser}</span></div>
-    <div class="cp-row"><span class="cp-label">DB Pass</span><span class="cp-val">${cp.mysqlPass}</span></div>
+    <div class="cp-row"><span class="cp-label">DB Pass</span><span class="cp-val">${hidden}</span></div>
     <div class="cp-title" style="margin-top:.75rem">&#127757; Nameservers</div>
     <div class="cp-row"><span class="cp-label">NS1</span><span class="cp-val">${s.ns1||"ns1.gearshosting.com"}</span></div>
     <div class="cp-row"><span class="cp-label">NS2</span><span class="cp-val">${s.ns2||"ns2.gearshosting.com"}</span></div>
-    <div class="cp-row" style="margin-top:.5rem"><span class="cp-label">Server IP</span><span class="cp-val">${s.server||"198.54.117.210"}</span></div>
+    <div class="cp-row" style="margin-top:.5rem"><span class="cp-label">Server IP</span><span class="cp-val">${serverIP}</span></div>
     <div class="cp-row"><span class="cp-label">Generated</span><span class="cp-val" style="color:var(--muted)">${cp.createdAt}</span></div>`;
 }
 
 function buildEmailHTML(o){
   const s=getSettings();const cp=o.cpanel;
   const company=s.company||"Gears Hosting";
-  const email=`Subject: Your ${company} Account is Active — Welcome!
+  const serverIP=cp.server||s.server||"198.54.117.210";
+  const email=`From: gearshosting@outlook.com
+Subject: Your GearsHosting Account is Active — Welcome!
 
 Dear ${o.name},
 
-Thank you for choosing ${company}! Your payment has been confirmed and your hosting account is now active.
+Thank you for choosing GearsHosting! Your payment has been confirmed and your hosting account is now active.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   INVOICE DETAILS
@@ -474,36 +490,40 @@ Thank you for choosing ${company}! Your payment has been confirmed and your host
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   cPanel URL  : ${s.cpanelUrl||"https://cpanel.gearshosting.com"}
   Username    : ${cp.username}
-  Password    : ${cp.password}
+  Password    : [Sent securely in a separate email]
 
   ⚠️  Please change your password after first login.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   FTP ACCESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  FTP Host    : ${s.server||"198.54.117.210"}
+  FTP Host    : ${serverIP}
   FTP User    : ${cp.ftpUser}
-  FTP Pass    : ${cp.ftpPass}
+  FTP Pass    : [Sent securely in a separate email]
   Port        : 21
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   MYSQL DATABASE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   DB Username : ${cp.mysqlUser}
-  DB Password : ${cp.mysqlPass}
+  DB Password : [Sent securely in a separate email]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   NAMESERVERS (point your domain here)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   NS1         : ${s.ns1||"ns1.gearshosting.com"}
   NS2         : ${s.ns2||"ns2.gearshosting.com"}
-  Server IP   : ${s.server||"198.54.117.210"}
+  Server IP   : ${serverIP}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-If you have any questions, reply to this email or open a support ticket in your client area.
+Your passwords have been sent to ${o.email} in a separate secure email.
+If you did not receive them, please contact our support team.
 
-Thank you for trusting ${company}!
+If you have any questions, reply to this email or visit your client area.
+
+Thank you for trusting GearsHosting!
 
 Best regards,
-${company} Support Team
-support@gearshosting.com`;
+GearsHosting Support Team
+gearshosting@outlook.com
+https://gearshosting.vercel.app`;
 
   document.getElementById("email-template-box").textContent=email;
 }
