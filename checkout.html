@@ -191,11 +191,28 @@ const planData = {
 
 const billingLabels = { monthly:"Monthly (1 Month)", quarterly:"Quarterly (3 Months)", biannual:"6 Months", annual:"Annual (1 Year)" };
 
-// Direct Lava.top payment links — 1 Month only
+// Direct Lava.top payment links — all billing periods
 const payLinks = {
-  stellar:  "https://app.lava.top/products/68d7c306-336a-4e57-8dce-f993ef396fb2/526acd4a-cb3f-4fbb-811c-9d2095a3f866?currency=USD",
-  plus:     "https://app.lava.top/products/68d7c306-336a-4e57-8dce-f993ef396fb2/1b9755cd-145d-4c56-b9ba-214424b24c2d?currency=USD",
-  business: "https://app.lava.top/products/68d7c306-336a-4e57-8dce-f993ef396fb2/fa0df8b2-da59-4a53-b045-c19895b37c67?currency=USD"
+  monthly: {
+    stellar:  "https://app.lava.top/products/68d7c306-336a-4e57-8dce-f993ef396fb2/526acd4a-cb3f-4fbb-811c-9d2095a3f866?currency=USD",
+    plus:     "https://app.lava.top/products/68d7c306-336a-4e57-8dce-f993ef396fb2/1b9755cd-145d-4c56-b9ba-214424b24c2d?currency=USD",
+    business: "https://app.lava.top/products/68d7c306-336a-4e57-8dce-f993ef396fb2/fa0df8b2-da59-4a53-b045-c19895b37c67?currency=USD"
+  },
+  quarterly: {
+    stellar:  "https://app.lava.top/products/6c5a96fa-954e-4b5d-b58a-7eccd27e31e1/17fa5016-29b6-4b9b-9bbe-f80b3d20f5d4?currency=USD",
+    plus:     "https://app.lava.top/products/6c5a96fa-954e-4b5d-b58a-7eccd27e31e1/6bbfa736-45c0-44fc-a77d-2e2581636cca?currency=USD",
+    business: "https://app.lava.top/products/6c5a96fa-954e-4b5d-b58a-7eccd27e31e1/2377b96b-1352-4482-8360-067fbfa0521f?currency=USD"
+  },
+  biannual: {
+    stellar:  "https://app.lava.top/products/b90b8dfb-37ec-482c-af4f-49a4433596a0/0f3b2c59-77dc-4f12-a9bc-f8026bcbfca6?currency=USD",
+    plus:     "https://app.lava.top/products/b90b8dfb-37ec-482c-af4f-49a4433596a0/4755b4a0-0575-4b79-9505-1569e0bdee0c?currency=USD",
+    business: "https://app.lava.top/products/b90b8dfb-37ec-482c-af4f-49a4433596a0/42603be8-3b4d-4b17-8fe1-e25c665c8ebe?currency=USD"
+  },
+  annual: {
+    stellar:  "https://app.lava.top/products/f8b9f58c-8eb5-4484-8b5f-b13bfee58324/80fca096-58af-4a5b-8559-6e78f81d981b?currency=USD",
+    plus:     "https://app.lava.top/products/f8b9f58c-8eb5-4484-8b5f-b13bfee58324/061efaa2-4b81-4ab6-a6eb-89649a376a15?currency=USD",
+    business: "https://app.lava.top/products/f8b9f58c-8eb5-4484-8b5f-b13bfee58324/533b78cc-dd3d-4c73-a17f-23ab1dd7c831?currency=USD"
+  }
 };
 
 function init() {
@@ -208,26 +225,18 @@ function init() {
   document.getElementById("sum-billing").textContent = billingLabels[billing] || billing;
   document.getElementById("sum-total").textContent = "$" + price + ".00";
 
-  const isMonthly = billing === "monthly";
   const btnPay = document.getElementById("btn-pay-direct");
   const btnManual = document.getElementById("btn-submit-manual");
   const noteMonthly = document.getElementById("pay-note-monthly");
   const noteOther = document.getElementById("pay-note-other");
   const noAutocharge = document.getElementById("no-autocharge-badge");
 
-  if (isMonthly) {
-    btnPay.style.display = "block";
-    btnManual.style.display = "none";
-    noteMonthly.style.display = "block";
-    noteOther.style.display = "none";
-    noAutocharge.style.display = "none";
-  } else {
-    btnPay.style.display = "none";
-    btnManual.style.display = "block";
-    noteMonthly.style.display = "none";
-    noteOther.style.display = "block";
-    noAutocharge.style.display = "block";
-  }
+  // All periods now have Lava links — always show Pay Now button
+  btnPay.style.display = "block";
+  btnManual.style.display = "none";
+  noteMonthly.style.display = "block";
+  noteOther.style.display = "none";
+  noAutocharge.style.display = "none";
 }
 init();
 
@@ -255,7 +264,8 @@ function saveInvoice(pm) {
 
 function payNow() {
   if (!saveInvoice("card/paypal")) return;
-  const link = payLinks[plan] || payLinks.plus;
+  const periodLinks = payLinks[billing] || payLinks.monthly;
+  const link = periodLinks[plan] || periodLinks.plus;
   window.open(link, "_blank");
 }
 
