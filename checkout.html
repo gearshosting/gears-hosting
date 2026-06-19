@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — Gears Hosting</title>
+<style>
+  :root {
+    --primary: #2563eb; --primary-dark: #1d4ed8; --bg: #0f172a;
+    --card: #1e293b; --border: #334155; --text: #f1f5f9; --muted: #94a3b8;
+    --success: #22c55e; --error: #ef4444;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); }
+  .logo { font-size: 1.2rem; font-weight: 700; color: var(--text); text-decoration: none; }
+  .logo span { color: var(--primary); }
+  .back-link { color: var(--muted); text-decoration: none; font-size: 0.88rem; display: flex; align-items: center; gap: 0.3rem; }
+  .back-link:hover { color: var(--text); }
+
+  .checkout-wrap { max-width: 960px; margin: 2.5rem auto; padding: 0 1.5rem; display: grid; grid-template-columns: 1fr 380px; gap: 2rem; }
+  @media(max-width:768px){ .checkout-wrap { grid-template-columns: 1fr; } }
+
+  h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; }
+
+  label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 0.35rem; margin-top: 1rem; }
+  label:first-of-type { margin-top: 0; }
+  input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.65rem 0.9rem; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border-color .2s; }
+  input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; margin: 1.5rem 0 0.75rem; border-top: 1px solid var(--border); padding-top: 1.25rem; }
+
+  .payment-methods { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
+  .pm-btn { flex: 1; padding: 0.6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--muted); cursor: pointer; font-size: 0.85rem; text-align: center; transition: all .2s; }
+  .pm-btn.active { border-color: var(--primary); color: var(--text); background: #1e3a5f; }
+
+  .btn-submit { width: 100%; margin-top: 1.5rem; padding: 0.85rem; background: var(--primary); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s; }
+  .btn-submit:hover { background: var(--primary-dark); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ORDER SUMMARY */
+  .summary-plan { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .summary-plan .plan-info .name { font-weight: 700; font-size: 1rem; }
+  .summary-plan .plan-info .features { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; }
+  .summary-plan .price { font-size: 1.4rem; font-weight: 800; }
+  .summary-line { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); padding: 0.45rem 0; border-bottom: 1px solid var(--border); }
+  .summary-line:last-of-type { border-bottom: none; }
+  .summary-total { display: flex; justify-content: space-between; font-weight: 700; font-size: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border); }
+  .badge-green { background: #14532d; color: var(--success); font-size: 0.72rem; padding: 0.2rem 0.5rem; border-radius: 4px; }
+  .trust-row { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+  .trust-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; color: var(--muted); }
+
+  /* SUCCESS */
+  #success-screen { display: none; text-align: center; padding: 3rem 1rem; }
+  #success-screen .check { font-size: 4rem; margin-bottom: 1rem; }
+  #success-screen h2 { font-size: 1.8rem; margin-bottom: 0.75rem; }
+  #success-screen p { color: var(--muted); margin-bottom: 1.5rem; }
+  #success-screen a { color: var(--primary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">⚙️ Gears<span>Hosting</span></a>
+  <a href="index.html" class="back-link">← Back to plans</a>
+</nav>
+
+<div id="checkout-screen">
+<div class="checkout-wrap">
+
+  <!-- LEFT: FORM -->
+  <div>
+    <h2>Complete your order</h2>
+    <div class="card">
+      <label>Full Name</label>
+      <input type="text" id="fname" placeholder="John Doe">
+
+      <label>Email Address</label>
+      <input type="email" id="femail" placeholder="john@example.com">
+
+      <div class="row2">
+        <div>
+          <label>Phone (optional)</label>
+          <input type="tel" id="fphone" placeholder="+1 555 0000">
+        </div>
+        <div>
+          <label>Country</label>
+          <select id="fcountry">
+            <option value="">Select country</option>
+            <option>United States</option>
+            <option>United Kingdom</option>
+            <option>Canada</option>
+            <option>Australia</option>
+            <option>Pakistan</option>
+            <option>India</option>
+            <option>Germany</option>
+            <option>France</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-title">Payment Method</div>
+      <div class="payment-methods">
+        <div class="pm-btn active" onclick="selectPM(this,'bank')">🏦 Bank Transfer</div>
+        <div class="pm-btn" onclick="selectPM(this,'crypto')">₿ Crypto</div>
+        <div class="pm-btn" onclick="selectPM(this,'paypal')">PayPal</div>
+      </div>
+
+      <div id="pm-bank">
+        <label>Instructions</label>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.83rem;color:var(--muted);line-height:1.7">
+          After submitting, you'll receive an invoice via email with bank transfer details.<br>
+          Your service will be activated once payment is confirmed (usually within 24h).
+        </div>
+      </div>
+      <div id="pm-crypto" style="display:none">
+        <label>Instructions</label>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.83rem;color:var(--muted);line-height:1.7">
+          We accept USDT (TRC20/ERC20) and BTC. After submitting, you'll receive wallet details and an invoice via email.
+        </div>
+      </div>
+      <div id="pm-paypal" style="display:none">
+        <label>Instructions</label>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.83rem;color:var(--muted);line-height:1.7">
+          After submitting, you'll receive an invoice with our PayPal email. Send payment and reply with the transaction ID.
+        </div>
+      </div>
+
+      <label style="margin-top:1rem">Additional Notes (optional)</label>
+      <textarea id="fnotes" rows="2" placeholder="Any special requirements..."></textarea>
+
+      <button class="btn-submit" onclick="submitOrder()">📩 Submit Order & Get Invoice</button>
+      <div style="text-align:center;font-size:0.75rem;color:var(--muted);margin-top:0.75rem">By submitting you agree to our Terms of Service and Privacy Policy.</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: SUMMARY -->
+  <div>
+    <h2>Order Summary</h2>
+    <div class="card">
+      <div class="summary-plan">
+        <div class="plan-info">
+          <div class="name" id="sum-name">Business Plan</div>
+          <div class="features" id="sum-features">5 Sites · 50GB SSD · Unlimited BW</div>
+        </div>
+        <div class="price" id="sum-price">$12</div>
+      </div>
+      <div class="summary-line"><span>Plan</span><span id="sum-plan-label">Business</span></div>
+      <div class="summary-line"><span>Billing</span><span id="sum-billing">Monthly</span></div>
+      <div class="summary-line"><span>Setup Fee</span><span style="color:var(--success)">FREE</span></div>
+      <div class="summary-line"><span>Discount</span><span id="sum-discount">—</span></div>
+      <div class="summary-total"><span>Total Due</span><span id="sum-total">$12.00</span></div>
+      <div style="margin-top:1rem">
+        <span class="badge-green">✓ No auto-charge</span>
+        <span style="font-size:0.75rem;color:var(--muted);margin-left:0.5rem">You pay manually per invoice</span>
+      </div>
+      <div class="trust-row">
+        <div class="trust-item">🔒 Secure order — no card stored</div>
+        <div class="trust-item">⚡ Activation within 24 hours</div>
+        <div class="trust-item">↩️ 30-day money-back guarantee</div>
+        <div class="trust-item">💬 24/7 support via ticket</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- SUCCESS -->
+<div id="success-screen">
+  <div class="check">✅</div>
+  <h2>Order Submitted!</h2>
+  <p>Thanks, <strong id="success-name"></strong>! We've received your order.<br>
+  An invoice will be sent to <strong id="success-email"></strong> shortly.<br>
+  Your service will be activated once payment is confirmed.</p>
+  <a href="client.html">→ Go to Client Area</a>
+</div>
+
+<script>
+// Read URL params
+const params = new URLSearchParams(location.search);
+const plan = params.get('plan') || 'business';
+const billing = params.get('billing') || 'monthly';
+
+const planData = {
+  starter:  { name:'Starter Plan',   features:'1 Site · 10GB SSD · 100GB BW',          prices:{monthly:5, quarterly:13, annual:36}  },
+  business: { name:'Business Plan',  features:'5 Sites · 50GB SSD · Unlimited BW',      prices:{monthly:12,quarterly:31, annual:86}  },
+  vps:      { name:'Pro VPS Plan',   features:'Unlimited Sites · 200GB NVMe · Root Access', prices:{monthly:29,quarterly:75,annual:209} }
+};
+
+const billingLabels = { monthly:'Monthly', quarterly:'Quarterly (3 months)', annual:'Annual (12 months)' };
+const discounts = { monthly:'—', quarterly:'Save ~14%', annual:'Save 40%' };
+
+function init() {
+  const d = planData[plan] || planData.business;
+  const price = d.prices[billing] || d.prices.monthly;
+  document.getElementById('sum-name').textContent = d.name;
+  document.getElementById('sum-features').textContent = d.features;
+  document.getElementById('sum-price').textContent = '$' + price;
+  document.getElementById('sum-plan-label').textContent = d.name.replace(' Plan','');
+  document.getElementById('sum-billing').textContent = billingLabels[billing];
+  document.getElementById('sum-discount').textContent = discounts[billing];
+  document.getElementById('sum-total').textContent = '$' + price + '.00';
+}
+init();
+
+let selectedPM = 'bank';
+function selectPM(btn, id) {
+  document.querySelectorAll('.pm-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['bank','crypto','paypal'].forEach(p => document.getElementById('pm-'+p).style.display = 'none');
+  document.getElementById('pm-'+id).style.display = 'block';
+  selectedPM = id;
+}
+
+function submitOrder() {
+  const name = document.getElementById('fname').value.trim();
+  const email = document.getElementById('femail').value.trim();
+  if (!name || !email) { alert('Please fill in your name and email.'); return; }
+  // In production: POST to your backend/API here
+  document.getElementById('success-name').textContent = name;
+  document.getElementById('success-email').textContent = email;
+  document.getElementById('checkout-screen').style.display = 'none';
+  document.getElementById('success-screen').style.display = 'block';
+  // Save to localStorage so client area can show it
+  const orders = JSON.parse(localStorage.getItem('gh_orders') || '[]');
+  const d = planData[plan] || planData.business;
+  orders.push({ id: 'INV-'+Date.now(), name, email, plan: d.name, billing: billingLabels[billing], amount: d.prices[billing]||d.prices.monthly, status:'Pending Payment', date: new Date().toLocaleDateString(), pm: selectedPM });
+  localStorage.setItem('gh_orders', JSON.stringify(orders));
+}
+</script>
+</body>
+</html>

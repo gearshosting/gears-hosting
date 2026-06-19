@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gears Hosting — Choose Your Plan</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --accent: #f59e0b;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* NAV */
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-bottom: 1px solid var(--border); }
+  .logo { font-size: 1.3rem; font-weight: 700; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+  .logo span { color: var(--primary); }
+  .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .btn-login { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 0.4rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; transition: background .2s; }
+  .btn-login:hover { background: var(--border); }
+
+  /* HERO */
+  .hero { text-align: center; padding: 4rem 1rem 2rem; }
+  .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.75rem; }
+  .hero h1 span { color: var(--primary); }
+  .hero p { color: var(--muted); font-size: 1.05rem; margin-bottom: 2rem; }
+  .secure-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--card); border: 1px solid var(--border); padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.8rem; color: var(--muted); }
+  .secure-badge::before { content: '🔒'; }
+
+  /* TOGGLE */
+  .billing-toggle { display: flex; justify-content: center; gap: 0.5rem; margin: 2rem 0; background: var(--card); border: 1px solid var(--border); border-radius: 999px; padding: 0.3rem; width: fit-content; margin-left: auto; margin-right: auto; }
+  .toggle-btn { padding: 0.45rem 1.2rem; border-radius: 999px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.85rem; transition: all .2s; }
+  .toggle-btn.active { background: var(--primary); color: #fff; font-weight: 600; }
+
+  /* PLANS */
+  .plans { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; padding: 1rem 2rem 4rem; max-width: 1100px; margin: 0 auto; }
+  .plan-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; width: 300px; position: relative; transition: transform .2s, border-color .2s; }
+  .plan-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+  .plan-card.popular { border-color: var(--primary); }
+  .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.05em; }
+  .plan-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .plan-desc { color: var(--muted); font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.5; }
+  .plan-price { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.25rem; }
+  .plan-price span { font-size: 1rem; font-weight: 400; color: var(--muted); }
+  .plan-billing { color: var(--muted); font-size: 0.8rem; margin-bottom: 1.5rem; }
+  .plan-features { list-style: none; margin-bottom: 2rem; }
+  .plan-features li { padding: 0.4rem 0; font-size: 0.88rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border); }
+  .plan-features li:last-child { border-bottom: none; }
+  .plan-features li::before { content: '✓'; color: #22c55e; font-weight: 700; }
+  .btn-plan { display: block; text-align: center; padding: 0.75rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; text-decoration: none; transition: all .2s; border: none; width: 100%; }
+  .btn-plan.primary { background: var(--primary); color: #fff; }
+  .btn-plan.primary:hover { background: var(--primary-dark); }
+  .btn-plan.outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-plan.outline:hover { background: var(--border); }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; color: var(--muted); font-size: 0.8rem; }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+  .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .trust-badges { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .trust-badge { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">⚙️ Gears<span>Hosting</span></a>
+  <div class="nav-links">
+    <a href="index.html">Plans</a>
+    <a href="client.html">Client Area</a>
+    <a href="login.html" class="btn-login">Sign In</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Choose Your <span>Hosting</span> Plan</h1>
+  <p>Fast, reliable hosting with full support. No hidden fees.</p>
+  <div class="secure-badge">Secure checkout · Cancel anytime · 99.9% uptime SLA</div>
+</div>
+
+<div class="billing-toggle">
+  <button class="toggle-btn active" onclick="setBilling('monthly',this)">Monthly</button>
+  <button class="toggle-btn" onclick="setBilling('quarterly',this)">Quarterly</button>
+  <button class="toggle-btn" onclick="setBilling('annual',this)">Annual <small style="color:var(--accent)">-40%</small></button>
+</div>
+
+<div class="plans">
+
+  <div class="plan-card">
+    <div class="plan-name">Starter</div>
+    <div class="plan-desc">Perfect for small websites, blogs, and personal projects.</div>
+    <div class="plan-price" id="price-starter">$5<span>/mo</span></div>
+    <div class="plan-billing" id="billing-starter">Billed monthly</div>
+    <ul class="plan-features">
+      <li>1 Website</li>
+      <li>10 GB SSD Storage</li>
+      <li>100 GB Bandwidth</li>
+      <li>Free SSL Certificate</li>
+      <li>Email Support</li>
+    </ul>
+    <a href="checkout.html?plan=starter" class="btn-plan outline">Get Started</a>
+  </div>
+
+  <div class="plan-card popular">
+    <div class="popular-badge">⭐ Most Popular</div>
+    <div class="plan-name">Business</div>
+    <div class="plan-desc">For growing businesses and professional websites.</div>
+    <div class="plan-price" id="price-business">$12<span>/mo</span></div>
+    <div class="plan-billing" id="billing-business">Billed monthly</div>
+    <ul class="plan-features">
+      <li>5 Websites</li>
+      <li>50 GB SSD Storage</li>
+      <li>Unlimited Bandwidth</li>
+      <li>Free SSL + Domain</li>
+      <li>Priority Support 24/7</li>
+      <li>Daily Backups</li>
+    </ul>
+    <a href="checkout.html?plan=business" class="btn-plan primary">Get Business</a>
+  </div>
+
+  <div class="plan-card">
+    <div class="plan-name">Pro VPS</div>
+    <div class="plan-desc">Full root access VPS for developers and high-traffic sites.</div>
+    <div class="plan-price" id="price-vps">$29<span>/mo</span></div>
+    <div class="plan-billing" id="billing-vps">Billed monthly</div>
+    <ul class="plan-features">
+      <li>Unlimited Websites</li>
+      <li>200 GB NVMe SSD</li>
+      <li>Unlimited Bandwidth</li>
+      <li>Dedicated IP</li>
+      <li>Root Access</li>
+      <li>24/7 Priority Support</li>
+      <li>Weekly Off-site Backups</li>
+    </ul>
+    <a href="checkout.html?plan=vps" class="btn-plan outline">Go Pro VPS</a>
+  </div>
+
+</div>
+
+<div class="trust-badges">
+  <div class="trust-badge">🔒 Secure Checkout</div>
+  <div class="trust-badge">⚡ Instant Activation</div>
+  <div class="trust-badge">↩️ 30-Day Refund Policy</div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="#">Terms</a>
+    <a href="#">Privacy</a>
+    <a href="#">Refund Policy</a>
+    <a href="#">Contact</a>
+  </div>
+  <p>© 2026 GearsHosting · Reliable hosting for everyone.</p>
+</footer>
+
+<script>
+const prices = {
+  monthly:   { starter: ['$5',  'Billed monthly'],    business: ['$12', 'Billed monthly'],    vps: ['$29', 'Billed monthly'] },
+  quarterly: { starter: ['$13', 'Billed every 3 months (save 13%)'], business: ['$31', 'Billed every 3 months (save 14%)'], vps: ['$75', 'Billed every 3 months (save 14%)'] },
+  annual:    { starter: ['$36', 'Billed annually (save 40%)'],        business: ['$86', 'Billed annually (save 40%)'],        vps: ['$209','Billed annually (save 40%)'] }
+};
+function setBilling(period, btn) {
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const p = prices[period];
+  ['starter','business','vps'].forEach(plan => {
+    document.getElementById('price-'+plan).innerHTML = p[plan][0] + '<span>/mo</span>';
+    document.getElementById('billing-'+plan).textContent = p[plan][1];
+  });
+  // Update checkout links
+  document.querySelectorAll('[href*="checkout.html"]').forEach(a => {
+    const url = new URL(a.href, location.href);
+    url.searchParams.set('billing', period);
+    a.href = url.pathname + url.search;
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Gears Hosting</title>
+<style>
+  :root { --primary:#2563eb;--bg:#0f172a;--card:#1e293b;--border:#334155;--text:#f1f5f9;--muted:#94a3b8;--success:#22c55e;--warning:#f59e0b;--error:#ef4444; }
+  * { box-sizing:border-box;margin:0;padding:0; }
+  body { background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex; }
+  /* SIDEBAR */
+  .sidebar { width:230px;min-height:100vh;background:#0b1220;border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 1rem;flex-shrink:0; }
+  .sidebar .logo { font-size:1.1rem;font-weight:800;margin-bottom:0.25rem;padding:0 0.5rem; }
+  .sidebar .logo span { color:var(--primary); }
+  .admin-tag { font-size:0.65rem;color:var(--warning);padding:0 0.5rem;margin-bottom:2rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:700; }
+  .nav-group { font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:0 0.5rem;margin:1.25rem 0 0.4rem; }
+  .nav-item { display:flex;align-items:center;gap:0.6rem;padding:0.6rem 0.75rem;border-radius:8px;cursor:pointer;color:var(--muted);font-size:0.86rem;transition:all .2s;margin-bottom:0.15rem; }
+  .nav-item:hover,.nav-item.active { background:var(--card);color:var(--text); }
+  .nav-item.active { color:var(--primary);font-weight:600; }
+  .sidebar-footer { margin-top:auto;padding-top:1rem;border-top:1px solid var(--border); }
+  .logout-btn { display:block;padding:0.5rem 0.75rem;color:var(--muted);font-size:0.82rem;cursor:pointer;border-radius:6px;transition:all .2s; }
+  .logout-btn:hover { color:var(--error);background:rgba(239,68,68,0.1); }
+  /* MAIN */
+  .main { flex:1;padding:2rem;overflow-y:auto; }
+  .page-title { font-size:1.5rem;font-weight:700;margin-bottom:0.35rem; }
+  .page-sub { color:var(--muted);font-size:0.88rem;margin-bottom:2rem; }
+  .section { display:none; }
+  .section.active { display:block; }
+  /* STAT CARDS */
+  .stat-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem; }
+  .stat-card { background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem; }
+  .stat-card .label { font-size:0.75rem;color:var(--muted);margin-bottom:0.4rem; }
+  .stat-card .value { font-size:1.8rem;font-weight:800; }
+  .stat-card .trend { font-size:0.73rem;color:var(--success);margin-top:0.2rem; }
+  /* CARDS */
+  .table-card { background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.5rem; }
+  .table-header { padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center; }
+  .table-header h3 { font-size:0.95rem;font-weight:700; }
+  table { width:100%;border-collapse:collapse; }
+  th { padding:0.7rem 1.25rem;font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;text-align:left;background:rgba(0,0,0,0.2); }
+  td { padding:0.85rem 1.25rem;font-size:0.84rem;border-top:1px solid var(--border); }
+  tr:first-child td { border-top:none; }
+  .badge { display:inline-block;padding:0.18rem 0.55rem;border-radius:999px;font-size:0.7rem;font-weight:700; }
+  .badge-pending { background:#451a03;color:var(--warning); }
+  .badge-paid    { background:#14532d;color:var(--success); }
+  .badge-active  { background:#14532d;color:var(--success); }
+  .badge-cancelled { background:#1f2937;color:var(--muted); }
+  .empty-state { text-align:center;padding:2.5rem;color:var(--muted);font-size:0.88rem; }
+  /* BUTTONS */
+  .btn-sm { padding:0.28rem 0.65rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:0.75rem;cursor:pointer;transition:all .2s; }
+  .btn-sm:hover { background:var(--border); }
+  .btn-sm.green { border-color:#166534;color:var(--success); }
+  .btn-sm.green:hover { background:#166534; }
+  .btn-sm.red { border-color:#991b1b;color:var(--error); }
+  .btn-sm.red:hover { background:#991b1b; }
+  .btn-primary { padding:0.65rem 1.25rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:0.88rem;font-weight:600;cursor:pointer; }
+  .btn-primary:hover { background:#1d4ed8; }
+  /* FORMS */
+  .form-card { background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;max-width:540px; }
+  .form-grid { display:grid;grid-template-columns:1fr 1fr;gap:1rem; }
+  label { display:block;font-size:0.78rem;color:var(--muted);margin-bottom:0.3rem;margin-top:0.85rem; }
+  label:first-child { margin-top:0; }
+  input,select,textarea { width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.6rem 0.85rem;border-radius:8px;font-size:0.87rem;outline:none;transition:border-color .2s; }
+  input:focus,select:focus,textarea:focus { border-color:var(--primary); }
+  /* MODAL */
+  .modal-backdrop { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center; }
+  .modal-backdrop.open { display:flex; }
+  .modal { background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;width:100%;max-width:520px;position:relative; }
+  .modal h3 { font-size:1.1rem;font-weight:700;margin-bottom:1.25rem; }
+  .modal-close { position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer; }
+  .invoice-preview { background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-top:1rem;font-size:0.84rem;line-height:2; }
+  .inv-row { display:flex;justify-content:space-between; }
+  .inv-total { display:flex;justify-content:space-between;font-weight:700;font-size:1rem;border-top:2px solid var(--border);padding-top:0.75rem;margin-top:0.5rem; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">⚙️ Gears<span>Hosting</span></div>
+  <div class="admin-tag">⚡ Admin Panel</div>
+  <div class="nav-group">Overview</div>
+  <div class="nav-item active" onclick="showSection('dashboard',this)">🏠 Dashboard</div>
+  <div class="nav-group">Management</div>
+  <div class="nav-item" onclick="showSection('clients',this)">👥 Clients</div>
+  <div class="nav-item" onclick="showSection('invoices',this)">🧾 Invoices</div>
+  <div class="nav-item" onclick="showSection('create-invoice',this)">➕ Create Invoice</div>
+  <div class="nav-item" onclick="showSection('services',this)">🖥️ Services</div>
+  <div class="nav-group">Settings</div>
+  <div class="nav-item" onclick="showSection('settings',this)">⚙️ Settings</div>
+  <div class="sidebar-footer">
+    <div style="padding:0.5rem 0.75rem;font-size:0.8rem;color:var(--muted)">👤 Admin · gearshosting</div>
+    <div class="logout-btn" onclick="logout()">🚪 Sign Out</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div class="section active" id="sec-dashboard">
+    <div class="page-title">Admin Dashboard</div>
+    <div class="page-sub">Overview of all clients, services and revenue.</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="label">Total Clients</div><div class="value" id="stat-clients">0</div><div class="trend">↑ registered</div></div>
+      <div class="stat-card"><div class="label">Total Invoices</div><div class="value" id="stat-inv">0</div><div class="trend">all time</div></div>
+      <div class="stat-card"><div class="label">Pending Payment</div><div class="value" id="stat-pending">0</div><div class="trend" style="color:var(--warning)">awaiting</div></div>
+      <div class="stat-card"><div class="label">Revenue Collected</div><div class="value" id="stat-revenue">$0</div><div class="trend">paid invoices</div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header"><h3>Recent Orders</h3><button class="btn-sm" onclick="showSection('invoices',document.querySelector('[onclick*=invoices]'))">View All</button></div>
+      <div id="dash-recent"></div>
+    </div>
+  </div>
+
+  <!-- CLIENTS -->
+  <div class="section" id="sec-clients">
+    <div class="page-title">Clients</div>
+    <div class="page-sub">All registered clients and their order count.</div>
+    <div class="table-card">
+      <div id="clients-body"></div>
+    </div>
+  </div>
+
+  <!-- INVOICES -->
+  <div class="section" id="sec-invoices">
+    <div class="page-title">All Invoices</div>
+    <div class="page-sub">Manage, mark paid, or cancel any invoice.</div>
+    <div class="table-card">
+      <div id="invoices-body"></div>
+    </div>
+  </div>
+
+  <!-- CREATE INVOICE -->
+  <div class="section" id="sec-create-invoice">
+    <div class="page-title">Create Invoice</div>
+    <div class="page-sub">Manually create an invoice for a client.</div>
+    <div class="form-card">
+      <div class="form-grid">
+        <div>
+          <label>Client Name</label>
+          <input type="text" id="ci-name" placeholder="John Doe">
+        </div>
+        <div>
+          <label>Client Email</label>
+          <input type="email" id="ci-email" placeholder="client@email.com">
+        </div>
+      </div>
+      <label>Plan / Service Description</label>
+      <input type="text" id="ci-plan" placeholder="e.g. Business Hosting Plan">
+      <div class="form-grid">
+        <div>
+          <label>Amount (USD)</label>
+          <input type="number" id="ci-amount" placeholder="12.00" min="0" step="0.01">
+        </div>
+        <div>
+          <label>Billing Period</label>
+          <select id="ci-billing">
+            <option>Monthly</option>
+            <option>Quarterly</option>
+            <option>Annual</option>
+            <option>One-time</option>
+          </select>
+        </div>
+      </div>
+      <label>Due Date</label>
+      <input type="date" id="ci-due">
+      <label>Notes (optional)</label>
+      <textarea id="ci-notes" rows="2" placeholder="Any notes to include on the invoice..."></textarea>
+      <div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap">
+        <button class="btn-primary" onclick="createInvoice()">📩 Create & Save Invoice</button>
+        <button class="btn-sm" onclick="previewInvoice()">👁️ Preview</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <div class="section" id="sec-services">
+    <div class="page-title">Services</div>
+    <div class="page-sub">All hosting services and their status.</div>
+    <div class="table-card">
+      <div id="services-body"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="section" id="sec-settings">
+    <div class="page-title">Settings</div>
+    <div class="page-sub">Configure your billing portal.</div>
+    <div class="form-card">
+      <label>Company Name</label>
+      <input type="text" id="set-company" value="Gears Hosting">
+      <label>Admin Email</label>
+      <input type="email" id="set-email" value="admin@gearshosting.com">
+      <label>Support Email</label>
+      <input type="email" id="set-support" value="support@gearshosting.com">
+      <label>Invoice Prefix</label>
+      <input type="text" id="set-prefix" value="INV-" placeholder="INV-">
+      <label>Currency</label>
+      <select id="set-currency">
+        <option>USD ($)</option>
+        <option>EUR (€)</option>
+        <option>GBP (£)</option>
+        <option>PKR (₨)</option>
+      </select>
+      <label>Change Admin Password</label>
+      <input type="password" placeholder="New password (leave blank to keep)">
+      <button class="btn-primary" style="margin-top:1.25rem" onclick="alert('Settings saved!')">Save Settings</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- INVOICE PREVIEW MODAL -->
+<div class="modal-backdrop" id="preview-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3>Invoice Preview</h3>
+    <div class="invoice-preview" id="inv-preview-content"></div>
+    <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+      <button class="btn-primary" onclick="printInvoice()">🖨️ Print / Save PDF</button>
+      <button class="btn-sm" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Auth check
+if (localStorage.getItem('gh_admin_session') !== 'true') { location.href = 'login.html'; }
+
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+  renderAll();
+}
+
+function logout() { localStorage.removeItem('gh_admin_session'); location.href = 'login.html'; }
+
+// ── DATA ──
+function getOrders() { return JSON.parse(localStorage.getItem('gh_orders') || '[]'); }
+function saveOrders(o) { localStorage.setItem('gh_orders', JSON.stringify(o)); }
+
+// ── RENDER ──
+function renderAll() {
+  const orders = getOrders();
+  const clients = [...new Set(orders.map(o=>o.email))];
+  const paid = orders.filter(o=>o.status==='Paid');
+  const revenue = paid.reduce((s,o)=>s+(parseFloat(o.amount)||0),0);
+
+  document.getElementById('stat-clients').textContent = clients.length;
+  document.getElementById('stat-inv').textContent = orders.length;
+  document.getElementById('stat-pending').textContent = orders.filter(o=>o.status==='Pending Payment').length;
+  document.getElementById('stat-revenue').textContent = '$'+revenue.toFixed(2);
+
+  renderRecentTable(orders.slice(-5).reverse(), 'dash-recent');
+  renderInvoicesTable(orders.reverse(), 'invoices-body');
+  renderClientsTable(clients, orders, 'clients-body');
+  renderServicesTable(orders.filter(o=>o.status==='Active'), 'services-body');
+}
+
+function statusBadge(s) {
+  const cls = s==='Pending Payment'?'badge-pending':s==='Paid'?'badge-paid':s==='Active'?'badge-active':'badge-cancelled';
+  return `<span class="badge ${cls}">${s}</span>`;
+}
+
+function renderRecentTable(orders, id) {
+  const el = document.getElementById(id);
+  if (!orders.length) { el.innerHTML='<div class="empty-state">No orders yet.</div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Invoice</th><th>Client</th><th>Plan</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${orders.map(o=>`
+      <tr>
+        <td style="font-weight:600">${o.id}</td>
+        <td>${o.name||'—'}<br><small style="color:var(--muted)">${o.email}</small></td>
+        <td>${o.plan}</td>
+        <td>$${o.amount}</td>
+        <td>${statusBadge(o.status)}</td>
+        <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
+          ${o.status==='Pending Payment'?`<button class="btn-sm green" onclick="markPaid('${o.id}')">Mark Paid</button>`:''}
+          <button class="btn-sm" onclick="viewInv('${o.id}')">View</button>
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function renderInvoicesTable(orders, id) { renderRecentTable(orders, id); }
+
+function renderClientsTable(clients, orders, id) {
+  const el = document.getElementById(id);
+  if (!clients.length) { el.innerHTML='<div class="empty-state">No clients yet.</div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Email</th><th>Name</th><th>Orders</th><th>Total Spent</th><th>Actions</th></tr></thead>
+    <tbody>${clients.map(email=>{
+      const co = orders.filter(o=>o.email===email);
+      const spent = co.filter(o=>o.status==='Paid').reduce((s,o)=>s+(parseFloat(o.amount)||0),0);
+      return `<tr>
+        <td>${email}</td>
+        <td>${co[0]?.name||'—'}</td>
+        <td>${co.length}</td>
+        <td>$${spent.toFixed(2)}</td>
+        <td><button class="btn-sm" onclick="createInvoiceFor('${email}','${co[0]?.name||''}')">+ Invoice</button></td>
+      </tr>`;
+    }).join('')}
+    </tbody></table>`;
+}
+
+function renderServicesTable(orders, id) {
+  const el = document.getElementById(id);
+  if (!orders.length) { el.innerHTML='<div class="empty-state">No active services.</div>'; return; }
+  el.innerHTML = `<table>
+    <thead><tr><th>Client</th><th>Plan</th><th>Billing</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>${orders.map(o=>`
+      <tr>
+        <td>${o.name||'—'}<br><small style="color:var(--muted)">${o.email}</small></td>
+        <td>${o.plan}</td>
+        <td>${o.billing}</td>
+        <td>${statusBadge(o.status)}</td>
+        <td><button class="btn-sm red" onclick="cancelService('${o.id}')">Cancel</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function markPaid(id) {
+  const orders = getOrders();
+  const o = orders.find(x=>x.id===id);
+  if (o) { o.status = 'Paid'; saveOrders(orders); renderAll(); }
+}
+
+function cancelService(id) {
+  if (!confirm('Cancel this service?')) return;
+  const orders = getOrders();
+  const o = orders.find(x=>x.id===id);
+  if (o) { o.status = 'Cancelled'; saveOrders(orders); renderAll(); }
+}
+
+function viewInv(id) {
+  const o = getOrders().find(x=>x.id===id);
+  if (!o) return;
+  showPreview(o);
+}
+
+function createInvoice() {
+  const name = document.getElementById('ci-name').value.trim();
+  const email = document.getElementById('ci-email').value.trim();
+  const plan = document.getElementById('ci-plan').value.trim();
+  const amount = parseFloat(document.getElementById('ci-amount').value);
+  const billing = document.getElementById('ci-billing').value;
+  const due = document.getElementById('ci-due').value;
+  const notes = document.getElementById('ci-notes').value.trim();
+  if (!name||!email||!plan||!amount) { alert('Please fill in all required fields.'); return; }
+  const orders = getOrders();
+  const inv = { id:'INV-'+Date.now(), name, email, plan, billing, amount, status:'Pending Payment', date:new Date().toLocaleDateString(), due: due||'N/A', notes, pm:'manual' };
+  orders.push(inv);
+  saveOrders(orders);
+  alert(`Invoice ${inv.id} created for ${name}!`);
+  document.getElementById('ci-name').value='';
+  document.getElementById('ci-email').value='';
+  document.getElementById('ci-plan').value='';
+  document.getElementById('ci-amount').value='';
+  document.getElementById('ci-notes').value='';
+  renderAll();
+}
+
+function previewInvoice() {
+  const name = document.getElementById('ci-name').value.trim() || 'Client Name';
+  const email = document.getElementById('ci-email').value.trim() || 'client@email.com';
+  const plan = document.getElementById('ci-plan').value.trim() || 'Hosting Plan';
+  const amount = document.getElementById('ci-amount').value || '0';
+  const billing = document.getElementById('ci-billing').value;
+  const due = document.getElementById('ci-due').value || 'Upon receipt';
+  showPreview({ id:'INV-PREVIEW', name, email, plan, billing, amount, date:new Date().toLocaleDateString(), due });
+}
+
+function createInvoiceFor(email, name) {
+  document.getElementById('ci-email').value = email;
+  document.getElementById('ci-name').value = name;
+  showSection('create-invoice', document.querySelector('[onclick*="create-invoice"]'));
+}
+
+function showPreview(o) {
+  document.getElementById('inv-preview-content').innerHTML = `
+    <div style="text-align:center;margin-bottom:1rem;font-size:1.1rem;font-weight:800">⚙️ GearsHosting</div>
+    <div style="text-align:center;color:var(--muted);font-size:0.78rem;margin-bottom:1.25rem">admin@gearshosting.com · gearshosting.vercel.app</div>
+    <div class="inv-row"><span style="color:var(--muted)">Invoice #</span><span style="font-weight:700">${o.id}</span></div>
+    <div class="inv-row"><span style="color:var(--muted)">Date</span><span>${o.date}</span></div>
+    <div class="inv-row"><span style="color:var(--muted)">Due Date</span><span>${o.due||'Upon receipt'}</span></div>
+    <div class="inv-row"><span style="color:var(--muted)">Bill To</span><span>${o.name} · ${o.email}</span></div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:0.75rem 0">
+    <div class="inv-row"><span>${o.plan}</span><span>$${o.amount}</span></div>
+    <div class="inv-row"><span style="color:var(--muted);font-size:0.78rem">Billing: ${o.billing}</span></div>
+    ${o.notes?`<div style="color:var(--muted);font-size:0.78rem;margin-top:0.5rem">Note: ${o.notes}</div>`:''}
+    <div class="inv-total"><span>Total Due</span><span>$${parseFloat(o.amount).toFixed(2)}</span></div>
+    <div style="margin-top:1rem;font-size:0.75rem;color:var(--muted);text-align:center">Status: <strong style="color:${o.status==='Paid'?'var(--success)':'var(--warning)'}">${o.status}</strong></div>`;
+  document.getElementById('preview-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('preview-modal').classList.remove('open'); }
+function printInvoice() { window.print(); }
+
+// Set default due date to 7 days from now
+const d = new Date(); d.setDate(d.getDate()+7);
+document.getElementById('ci-due').value = d.toISOString().split('T')[0];
+
+renderAll();
+</script>
+</body>
+</html>
