@@ -121,6 +121,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--primary);}
   <div class="section" id="sec-clients">
     <div class="page-title">Clients</div>
     <div class="page-sub">All registered clients with their cPanel details.</div>
+    <div style="margin-bottom:1rem">
+      <input id="client-search" type="text" placeholder="&#128269; Search by name or email..." oninput="filterClients(this.value)"
+        style="width:100%;max-width:400px;padding:.6rem 1rem;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:.9rem;outline:none;transition:border .2s"
+        onfocus="this.style.borderColor='#dc2626'" onblur="this.style.borderColor='#333'">
+    </div>
     <div class="table-card"><div id="clients-body"></div></div>
   </div>
 
@@ -575,6 +580,16 @@ const dd=new Date();dd.setDate(dd.getDate()+7);
 document.getElementById("ci-due").value=dd.toISOString().split("T")[0];
 
 renderAll();
+
+function filterClients(q){
+  const orders=getOrders();
+  const clients=[...new Set(orders.map(o=>o.email))];
+  const filtered=q.trim()===""?clients:clients.filter(email=>{
+    const name=(orders.find(o=>o.email===email)?.name||"").toLowerCase();
+    return email.toLowerCase().includes(q.toLowerCase())||name.includes(q.toLowerCase());
+  });
+  renderClientsTable(filtered,orders,"clients-body");
+}
 </script>
 </body>
 </html>
