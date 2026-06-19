@@ -330,7 +330,7 @@ function renderInvTable(orders,id,short){
     rows.map(o=>{
       const cp=o.cpanel;
       const cpCell=cp
-        ?`<div style="font-size:.72rem;color:var(--info);font-family:monospace">&#128187; ${cp.username}<br><span style="color:var(--muted)">&#128274; ${cp.password}</span></div>`
+        ?`<div style="font-size:.72rem;color:var(--info);font-family:monospace">&#128187; ${cp.username}<br><span style="color:var(--warning);font-size:.68rem">&#128274; Sent securely to email</span></div>`
         :`<span style="color:var(--muted);font-size:.75rem">&mdash;</span>`;
       return `<tr>
         <td style="font-weight:600">${o.id}</td>
@@ -361,11 +361,11 @@ function renderClientsTable(clients,orders,id){
       const cpCell=cp?`<div class="cpanel-box" style="margin:0;min-width:220px">
         <div class="cp-title">cPanel Access</div>
         <div class="cp-row"><span class="cp-label">User</span><span class="cp-val">${cp.username}</span></div>
-        <div class="cp-row"><span class="cp-label">Pass</span><span class="cp-val">${cp.password}</span></div>
+        <div class="cp-row"><span class="cp-label">Pass</span><span class="cp-val" style="color:var(--warning);font-size:.72rem">&#128274; Sent to email</span></div>
         <div class="cp-row"><span class="cp-label">FTP User</span><span class="cp-val">${cp.ftpUser}</span></div>
-        <div class="cp-row"><span class="cp-label">FTP Pass</span><span class="cp-val">${cp.ftpPass}</span></div>
+        <div class="cp-row"><span class="cp-label">FTP Pass</span><span class="cp-val" style="color:var(--warning);font-size:.72rem">&#128274; Sent to email</span></div>
         <div class="cp-row"><span class="cp-label">DB User</span><span class="cp-val">${cp.mysqlUser}</span></div>
-        <div class="cp-row"><span class="cp-label">DB Pass</span><span class="cp-val">${cp.mysqlPass}</span></div>
+        <div class="cp-row"><span class="cp-label">DB Pass</span><span class="cp-val" style="color:var(--warning);font-size:.72rem">&#128274; Sent to email</span></div>
       </div>`:`<span style="color:var(--muted);font-size:.75rem">No active service yet</span>`;
       return `<tr>
         <td><strong>${co[0]?.name||"&mdash;"}</strong><br><small style="color:var(--muted)">${email}</small></td>
